@@ -1,0 +1,18 @@
+{
+  "id": "mig_cj98d5v5mimm457442a0",
+  "parentID": "mig_cj98csv5mimm4574427g",
+  "checksum": "1:29f84fed38f15e116b20f840f8cccc0289c1d18b35af4a6f484aa9f2dcd21386",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "phone_number",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "+23057746010"
+        },
+        "table": "contacts"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "mig_cj98devg07tdv958kfl0",
+  "parentID": "mig_cj98d92lvtaalbtqt350",
+  "checksum": "1:9dfb4f3152f1a9c98017a431549fe1008a695abd06367117a85efd359da6f24c",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "image_url",
+          "type": "string"
+        },
+        "table": "contacts"
+      }
+    }
+  ]
+}

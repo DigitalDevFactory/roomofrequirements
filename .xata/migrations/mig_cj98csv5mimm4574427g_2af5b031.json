@@ -1,0 +1,18 @@
+{
+  "id": "mig_cj98csv5mimm4574427g",
+  "parentID": "mig_cj98cpqlvtaalbtqt340",
+  "checksum": "1:2af5b0316618aea3de56ab50dd8e994bc6ea48a8fcf3332e320bb1656f2dc07c",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "last_name",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "Smith"
+        },
+        "table": "contacts"
+      }
+    }
+  ]
+}

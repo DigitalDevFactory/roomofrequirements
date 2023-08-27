@@ -1,0 +1,13 @@
+{
+  "id": "mig_cj98cn75mimm4574426g",
+  "parentID": "mig_cj98ckf5mimm4574425g",
+  "checksum": "1:d83ddea8bbf6c2c95979050a58a434cbcdb516d85efe3bb75d0ce522bd3f1cff",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "first_name",
+        "table": "contacts"
+      }
+    }
+  ]
+}

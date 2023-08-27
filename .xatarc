@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Vivek-Bhaugeerutty-s-workspace-jaj0p1.eu-central-1.xata.sh/db/contacts-directory",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}
