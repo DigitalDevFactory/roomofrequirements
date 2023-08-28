@@ -16,6 +16,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     "phone_number",
                     "email",
                     "image_url",
+                    "image"
                 ])
                 .getAll();
 

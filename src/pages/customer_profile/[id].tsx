@@ -30,6 +30,7 @@ export type CustomerData = {
     phone_number: string;
     email: string;
     image_url: string;
+    image:File
 };
 //.select(["id", "customer_id", "Waist", "Knee", "FR", "Hip", "Jambe", "Genou", "Length", "date_added"])
 
@@ -485,7 +486,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                         width: '80%',
                     }}>
                         <CardContent>
-                            <Avatar src={customer.image_url} sx={{ mt: 2, height: '92px', width: '92px', marginBottom: '8px', mx: "auto" }}>
+                            <Avatar src={!customer.image ? customer.image_url : customer.image.url} sx={{ mt: 2, height: '92px', width: '92px', marginBottom: '8px', mx: "auto" }}>
                                 {(!customer.image_url && customer.first_name) ? customer.first_name[0] + customer.last_name[0] : ''}
                             </Avatar>
                             <Typography

@@ -36,23 +36,43 @@ type Contact = {
     phone_number: string;
     email: string;
     image_url: string;
+    image: File | null;
 };
 
+
+type ContactForm = {
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    email: string;
+    image_url: string;
+    image: File | null;
+};
 
 
 const CustomerBook = () => {
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [openUploadWidget, setOpenUploadWidget] = useState(false);
 
+    const [fileToUpload, setFileToUpload] = useState(null);
+
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
 
 
 
-    const handleImageUpload = (image) => {
-        console.log("Uploaded image:", image); // You can inspect the full image object if needed
-        setNewContact(prev => ({ ...prev, image_url: image.secure_url }));
-        setOpenUploadWidget(false);
-    };
-
+    function handleFileChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+            setFileToUpload(file);
+        }
+    }
 
     const fetchContacts = async () => {
         try {
@@ -90,12 +110,13 @@ const CustomerBook = () => {
     const [isHovered, setIsHovered] = useState(false);
 
     const [open, setOpen] = useState(false);
-    const [newContact, setNewContact] = useState({
+    const [newContact, setNewContact] = useState<ContactForm>({
         first_name: "",
         last_name: "",
         phone_number: "",
         email: "",
-        image_url: ""
+        image_url: "",
+        image: undefined
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,12 +125,59 @@ const CustomerBook = () => {
 
     async function handleSubmit() {
         try {
+            const formData = new FormData();
+            formData.append("first_name", newContact.first_name);
+            formData.append("last_name", newContact.last_name);
+            formData.append("phone_number", newContact.phone_number);
+            formData.append("email", newContact.email);
+            formData.append("image_url", newContact.image_url);
+            if (newContact.image) {
+                formData.append("image", newContact.image);
+                console.log("Image:", newContact.image);
+            }
+    
+            const response = await fetch("/api/addContact", {
+                method: "POST",
+                body: formData // No need to set the 'Content-Type', browser will handle it due to FormData
+            });
+    
+            const responseData = await response.json();
+            console.log("Response from /api/addContact:", responseData);
+    
+            if (!response.ok) {
+                throw new Error(responseData.error || "Failed to add contact.");
+            }
+    
+            setContacts(prev => [...prev, responseData.data]);
+            setOpen(false);
+            setNewContact({
+                first_name: "",
+                last_name: "",
+                phone_number: "",
+                email: "",
+                image_url: "",
+                image: undefined
+            });
+    
+            console.log("Successfully added contact!");
+            fetchContacts();
+    
+        } catch (error) {
+            console.error("Error while adding contact:", error.message);
+        }
+    }
+    
+
+
+    async function handleSubmit_old() {
+        try {
+            // Now send the contact data, with the image URL, to the server.
             const response = await fetch("/api/addContact", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(newContact)
+                body: JSON.stringify({ ...newContact })
             });
 
             const responseData = await response.json();
@@ -126,7 +194,8 @@ const CustomerBook = () => {
                 last_name: "",
                 phone_number: "",
                 email: "",
-                image_url: ""
+                image_url: "",
+                image: undefined
             });
 
             console.log("Successfully added contact!");
@@ -137,6 +206,7 @@ const CustomerBook = () => {
             console.error("Error while adding contact:", error.message);
         }
     }
+
 
     const containerVariants = {
         hidden: { opacity: 1 },
@@ -152,13 +222,19 @@ const CustomerBook = () => {
     const cardVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: (i: any) => ({ y: 0, opacity: 1, transition: { delay: i * 0.1 } }), // i is the index
-        hover: { scale: 1.1, transition: { duration: 0.2 } }
+        hover: {
+            boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
+            borderRadius: '8px',
+            transition: { duration: 0.2 }
+        }
+
     };
 
 
     return (
         <motion.div style={{
             background: '#f9f9f9',
+            overflow: 'auto',
         }}>
             <Navbar />
             <Container sx={
@@ -270,19 +346,18 @@ const CustomerBook = () => {
                         value={newContact.image_url}
                         onChange={handleChange}
                     />
-                    {/* <CldUploadWidget
-                        uploadPreset="kgewihl7"
-                        onComplete={handleImageUpload}
-                        open={openUploadWidget}
-                        onClose={() => setOpenUploadWidget(false)}
-                    >
-                        {({ open }) => (
-                            <Button onClick={() => setOpenUploadWidget(true)}>
-                                Upload an Image
-                            </Button>
-                        )}
-                    </CldUploadWidget> */}
+                    {/* Let's add an input field to upload an image */}
 
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            const file = e.target?.files?.[0];
+                            if (file) {
+                                setNewContact(prev => ({ ...prev, image: file }));
+                            }
+                        }}
+                    />
 
                 </DialogContent>
                 <DialogActions>
@@ -304,11 +379,12 @@ const CustomerBook = () => {
                     {filteredContacts
                         .sort((a, b) => a.last_name.localeCompare(b.last_name))
                         .map((contact, index) => (
-                            <Grid item xs={12} sm={6} md={3} key={contact.id}>
+                            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={contact.id}>
                                 <motion.div variants={cardVariants}
                                     initial="hidden"
                                     animate="visible"
                                     whileHover="hover"
+                                    whileTap={{ scale: 0.98 }}
                                     custom={index}>
                                     <Link href={`/customer_profile/${contact.id}`}>
                                         <Card variant="outlined"
@@ -322,7 +398,7 @@ const CustomerBook = () => {
                                                 // padding: '16px 4px 16px'
                                             }}>
                                             <CardContent sx={{ textAlign: 'center', width: '100%' }}>
-                                                <Avatar src={contact.image_url} sx={{ marginBottom: '8px', mx: "auto" }}>
+                                                <Avatar src={!contact.image ? contact.image_url : contact.image.url} sx={{ marginBottom: '8px', mx: "auto" }}>
                                                     {(!contact.image_url && contact.first_name) ? contact.first_name[0] + contact.last_name[0] : ''}
                                                 </Avatar>
                                                 <Typography variant="h6">
