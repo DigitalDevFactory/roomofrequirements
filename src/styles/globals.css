@@ -25,4 +25,18 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+    background-image:url("/assets/abg.png"); 
+    /* background-position-y: "52px"; */
+    background-size: cover;
+}
+
+.css-hip9hq-MuiPaper-root-MuiAppBar-root {
+  /* background-image: url("/assets/banner2.png"); */
+ background: rgba(0, 0, 0, 0.3);
+ z-index: -3;
+
+  /* background-position-x:'23%'; */
+  /* background-color:oldlace; */
+  /* background: none; */
+  /* box-shadow: oldlace; */
 }

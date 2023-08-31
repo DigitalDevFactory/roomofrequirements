@@ -135,19 +135,19 @@ const CustomerBook = () => {
                 formData.append("image", newContact.image);
                 console.log("Image:", newContact.image);
             }
-    
+
             const response = await fetch("/api/addContact", {
                 method: "POST",
                 body: formData // No need to set the 'Content-Type', browser will handle it due to FormData
             });
-    
+
             const responseData = await response.json();
             console.log("Response from /api/addContact:", responseData);
-    
+
             if (!response.ok) {
                 throw new Error(responseData.error || "Failed to add contact.");
             }
-    
+
             setContacts(prev => [...prev, responseData.data]);
             setOpen(false);
             setNewContact({
@@ -158,15 +158,15 @@ const CustomerBook = () => {
                 image_url: "",
                 image: undefined
             });
-    
+
             console.log("Successfully added contact!");
             fetchContacts();
-    
+
         } catch (error) {
             console.error("Error while adding contact:", error.message);
         }
     }
-    
+
 
 
     async function handleSubmit_old() {
@@ -221,30 +221,40 @@ const CustomerBook = () => {
 
     const cardVariants = {
         hidden: { y: 20, opacity: 0 },
-        visible: (i: any) => ({ y: 0, opacity: 1, transition: { delay: i * 0.1 } }), // i is the index
+        visible: (i: any) => ({
+            y: 0,
+            opacity: 1,
+            transition: {
+                delay: i * 0.1,
+                duration: 0.4, // You can adjust the duration as needed
+                ease: "easeInOut" // You can use different easing options
+            }
+        }),
         hover: {
+            scale: "1.01",
             boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
             borderRadius: '8px',
-            transition: { duration: 0.2 }
+            transition: {
+                duration: 0.3,
+                ease: "easeInOut" // You can use different easing options
+            }
         }
-
     };
 
 
     return (
         <motion.div style={{
-            background: '#f9f9f9',
+            background: 'transparent',
             overflow: 'auto',
         }}>
             <Navbar />
             <Container sx={
                 {
-                    mt: 5,
+                    mt: 7,
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyItems: 'center',
-
                     justifyContent: 'space-between',
                     width: '100%',
                 }
@@ -270,13 +280,17 @@ const CustomerBook = () => {
                     transition={{ ease: "easeOut", duration: 2 }}
                 >
                     <Button
+                        className='px-6 text-base font-bold hover:font-normal text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br 
+                            focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg
+                             shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80
+                            rounded-lg  text-center mr-2'
                         variant="contained"
                         // color="primary"
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         onClick={() => setOpen(true)}
                         sx={{
-                            color: '#17226d',
+                            //  color: '#17226d',
                             fontFamily: "'PT Serif', serif",
                             fontSize: '24px',
                             width: '60px',
@@ -395,6 +409,8 @@ const CustomerBook = () => {
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 justifyContent: 'center',
+                                                background: "linear-gradient(127deg, rgba(255,255,255,1) 1%, rgba(255,255,255,0.5) 50%)",
+                                                // boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
                                                 // padding: '16px 4px 16px'
                                             }}>
                                             <CardContent sx={{ textAlign: 'center', width: '100%' }}>

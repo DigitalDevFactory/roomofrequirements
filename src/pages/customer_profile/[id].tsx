@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import {
     Card, CardContent, Tabs, Tab, Table,
     TableHead, TableRow, TableCell, TableBody, Container, Avatar, Typography, Select, MenuItem,
-    FormControl, InputLabel, Input, FormHelperText, Button, Modal, Menu, IconButton, Collapse, TextField
+    FormControl, InputLabel, Input, FormHelperText, Button, Modal, Menu, IconButton, Collapse, TextField, Box
 } from '@mui/material';
 import { formatDate } from '@/utils/formatDate';
 import { color } from 'framer-motion';
@@ -18,7 +18,10 @@ import OrderForm from './order_form';
 import OrderTable, { Order } from './order_table';
 import AddIcon from '@mui/icons-material/Add';
 import TocIcon from '@mui/icons-material/Toc';
-
+// import image from '../../../public/assets/picture.jpg';
+import { Theme, makeStyles } from '@mui/material/styles';
+import clsx from "clsx";
+// import color from "color";
 
 
 
@@ -30,7 +33,7 @@ export type CustomerData = {
     phone_number: string;
     email: string;
     image_url: string;
-    image:File
+    image: File
 };
 //.select(["id", "customer_id", "Waist", "Knee", "FR", "Hip", "Jambe", "Genou", "Length", "date_added"])
 
@@ -269,11 +272,11 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
 
 
     return (
-        <div style={{ height: '100%', width: '100%' }}> {/* Set height & width as per your requirements */}
+        <div style={{ height: '269px', width: '100%', backgroundColor: 'white', borderRadius: 8 }}> {/* Set height & width as per your requirements */}
             <DataGrid
                 rows={rows}
                 columns={columns}
-                pageSize={5}
+                // autoPageSize
                 checkboxSelection={false}
                 onEditCellChangeCommitted={handleCellEdit}
             />
@@ -460,41 +463,60 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                 minWidth: '100%',
                 width: '100%',
                 display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 2fr' }, // creates two columns of equal width
+                gridTemplateColumns: { xs: '1fr', md: '1fr 3fr' }, // creates two columns of equal width
                 gridTemplateRows: 'auto auto',  // creates two rows, each with automatic height
-                gap: 5,  // spacing between grid items
+                gap: 2,
+                rowGap: 4,
                 justifyContent: 'center',
                 alignItems: 'center',
-                bgcolor: 'background.paper',
-                padding: 2,
-                innerHeight: '100%',
+                // bgcolor: 'background.paper',
+                padding: 4,
+                // innerHeight: '100%',
+                // backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(255,255,255,0.1)), url(/assets/bg2.png)`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPositionX: '40%',
+                backgroundPositionY: '30%'
 
                 // minWidth: '100%',
 
             }}>
                 {/* Customer Info Card */}
                 {customer && (
-                    <Card sx={{
-                        minHeight: 430,
-                        maxHeight: 430,
-                        gridColumn: { xs: '1', md: '1' },
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                        borderRadius: 5,
-                        mx: 'auto',
-                        width: '80%',
-                    }}>
-                        <CardContent>
-                            <Avatar src={!customer.image ? customer.image_url : customer.image.url} sx={{ mt: 2, height: '92px', width: '92px', marginBottom: '8px', mx: "auto" }}>
+                    <Card
+                        sx={{
+                            minHeight: 430,
+                            maxHeight: 430,
+                            gridColumn: { xs: '1', md: '1' },
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            borderRadius: 5,
+                            mx: 'auto',
+                            width: { xs: '100%' },
+                            background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
+                            boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
+                        }}
+                    >
+                        <CardContent
+                            sx={{
+                                background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
+                                backdropFilter: 'blur(6px)',
+                                minWidth: '100%',
+                                display: 'flex',
+                                flexDirection: "column",
+                                p: 3
+                                // border: "1px solid rgba(255,255,255,0.1)", // Light border for the reflective effect
+                                // borderTop: "1px solid rgba(255,255,255,0.6)", // Extra light border-top for enhanced reflection
+                            }}>
+                            <Avatar src={!customer.image ? customer.image_url : customer.image.url} sx={{ height: { xs: '152px', md: '152px' }, width: '152px', marginBottom: '2', mx: "auto" }}>
                                 {(!customer.image_url && customer.first_name) ? customer.first_name[0] + customer.last_name[0] : ''}
                             </Avatar>
                             <Typography
-                                variant='h4'
+                                variant='h5'
                                 sx={{
                                     textAlign: 'center',
-                                    mt: 3,
-                                    px: 3,
+                                    mt: 2,
+                                    // px: 3,
                                     color: '#000000'
                                 }}
                             >{customer.first_name} <br></br> {customer.last_name}
@@ -504,7 +526,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                 sx={{
                                     textAlign: 'center',
                                     mt: 1,
-                                    px: 3,
+                                    // px: 3,
                                     color: 'black'
                                 }}
                             >{customer.phone_number}
@@ -527,8 +549,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                         color: 'primary',
                                         borderRadius: 12,
                                         boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                                        marginTop: 3,
-                                        marginBottom: 3,
+                                        my: 2,
                                         p: 3
                                     }}
                                     onClick={(event) => setAnchorEl(event.currentTarget)}
@@ -563,30 +584,34 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
 
 
                 <Card sx={{
+                    mx: "auto",
                     minHeight: 430,
                     maxHeight: 430,
                     gridColumn: { xs: '1', md: '2' },
                     textAlign: 'center',
-                    boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                    width: '90%',
                     borderRadius: 5,
+                    width: { xs: '100%' },
+                    background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
+                    boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
                 }}>
 
                     <CardContent className='' sx={{
-                        maxHeight: '425px',
+                        minHeight: '430px',
+                        maxHeight: '430px',
+                        background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
+                        backdropFilter: 'blur(6px)',
                     }}>
                         {/* Typography Centered */}
                         <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 4, padding: 4 }}>
                             <Typography
-                                className='text-black text-center font-bold text-2xl w-half columns-1'
-                                // variant='h4'
+                                className='text-black text-left ml-4 font-bold w-half columns-1'
+                                variant='h4'
                                 sx={{
                                     gridColumn: '1fr',
                                     flexGrow: 1,
                                     width: '100%',
                                     textAlign: 'center',
                                     my: 2,
-                                    // px: 3,
                                     color: 'black'
                                 }}
 
@@ -605,6 +630,8 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                     flexGrow: 0.5,
                                     boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
                                     transition: 'all 0.3s',
+                                    '& .btn-text': { display: { xs: 'none', md: "block" } },
+                                    '& .btn-icon': { display: { xs: 'block' } },
                                     '&:hover': {
                                         backgroundColor: 'white',
                                         color: 'indigo',
@@ -630,7 +657,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                         {/* Displaying the form or the table */}
                         {showOrderForm
                             ? <OrderForm sx={{ width: '100%' }} toggleView={toggleShowOrderForm} refreshOrders={fetchOrders} ></OrderForm>
-                            : <OrderTable orders={orders} sx={{ width: '100' }}></OrderTable>
+                            : <OrderTable orders={orders} sx={{ maxHeight: '425px', minHeight: '425px', width: '100' }}></OrderTable>
                         }
                     </CardContent>
 
@@ -641,13 +668,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
 
 
 
-                <Container sx={{
+                <Box sx={{
                     minWidth: '100%',
-                    display: 'grid',
                     gridTemplateColumns: '1fr',
                     gridColumn: '1 / span 2',
-                    // boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                    marginTop: 4,
+                    p: 0,
+                    mx: 0,
                     border: 'none',
                     display: 'flex',
                     flexDirection: 'column',
@@ -655,64 +681,69 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                     justifyContent: 'center',
                     textAlign: 'center',
                     overflow: 'auto',
-                    maxHeight: '80vh',
                     maxWidth: '100%'
                 }}>
 
                     <>
-                        <Tabs
+                        <Card
                             sx={{
-                                mt: 1,
-                                mx: 'auto',
-                            }}
-                            value={tabValue}
-                            onChange={(event, newValue) => setTabValue(newValue)}
-                        >
-                            <Tab label="Pants" value="pants" />
-                            <Tab label="Shirts" value="shirts" />
-                            <Tab label="Suits" value="suits" />
-                            {/* Add other tabs as needed */}
-                        </Tabs>
+                                background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
+                                boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
+                                borderRadius: 5,
+                            }}>
 
-                        {/* Orders Card */}
-
-
-
-                        <Card sx={{
-                            // boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                            marginTop: 3,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'left',
-                            justifyContent: 'center',
-                            textAlign: 'center',
-                            overflow: 'auto',
-                            maxHeight: '80vh',
-                            maxWidth: '100%'
-                        }}>
-                            {tableConfigurations[tabValue].data && tableConfigurations[tabValue].data.length > 0 ? (
-                                <MeasurementsTable
-                                    // key={tableVersion}
-                                    // refreshTable={refreshTable}
-                                    customer={customer}
-                                    measurements={tableConfigurations[tabValue].data}
-                                    headers={tableConfigurations[tabValue].headers}
-                                    formatRow={tableConfigurations[tabValue].formatter}
-                                // onDataUpdated={handleDataUpdated} // pass the new handler here
-                                />
-                            ) :
-                                <Typography sx={{
-                                    textAlign: 'center',
-                                    my: 3,
-                                    px: 3,
-                                    color: 'black'
-                                }}>
-                                    No measurements found.
-                                </Typography>
-                            }
+                            <CardContent sx={{
+                                background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
+                                minWidth: '100%',
+                                backdropFilter: "blur(6px)",
+                                py: 0,
+                                my: 0,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'left',
+                                justifyContent: 'center',
+                                textAlign: 'center',
+                                overflow: 'auto',
+                                maxHeight: '80vh',
+                                maxWidth: '100%'
+                            }}>
+                                <Tabs
+                                    sx={{
+                                        mb: 1,
+                                        mx: 'auto',
+                                    }}
+                                    value={tabValue}
+                                    onChange={(event, newValue) => setTabValue(newValue)}
+                                >
+                                    <Tab className='text-md text-black font-normal hover:underline hover:underline-offset-8 hover:decoration-orange-700  hover:text-gray-500  hover:font-bold' label="Pants" value="pants" />
+                                    <Tab className='text-md text-black font-normal hover:underline-offset-4 hover:text-gray-500 hover:font-bold' label="Shirts" value="shirts" />
+                                    <Tab className='text-md text-black font-normal hover:underline-offset-4 hover:text-gray-500 hover:font-bold' label="Suits" value="suits" />
+                                    {/* Add other tabs as needed */}
+                                </Tabs>
+                                {tableConfigurations[tabValue].data && tableConfigurations[tabValue].data.length > 0 ? (
+                                    <MeasurementsTable
+                                        // key={tableVersion}
+                                        // refreshTable={refreshTable}
+                                        customer={customer}
+                                        measurements={tableConfigurations[tabValue].data}
+                                        headers={tableConfigurations[tabValue].headers}
+                                        formatRow={tableConfigurations[tabValue].formatter}
+                                    // onDataUpdated={handleDataUpdated} // pass the new handler here
+                                    />
+                                ) :
+                                    <Typography sx={{
+                                        textAlign: 'center',
+                                        my: 3,
+                                        px: 3,
+                                        color: 'black'
+                                    }}>
+                                        No measurements found.
+                                    </Typography>
+                                }
+                            </CardContent>
                         </Card>
                     </>
-                </Container>
+                </Box>
 
 
 

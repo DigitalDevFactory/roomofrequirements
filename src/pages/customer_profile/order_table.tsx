@@ -54,7 +54,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onEdit, onDelete, onVie
     ];
 
     return (
-        <div style={{ height: 300 }}>  {/* Adjust the height accordingly */}
+        <div style={{ height: 300, minHeight: 300, maxHeight: 300, paddingLeft: '9px', paddingRight: '9px' }}>  {/* Adjust the height accordingly */}
             <DataGrid
                 rows={orders}
                 columns={columns}
@@ -65,7 +65,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onEdit, onDelete, onVie
                 overflow="auto"
                 disableSelectionOnClick
                 // scrollbarSize={10}
-                sx={{ textAlign: 'center', border: "none", borderRadius: "10px" }}
+                sx={{ textAlign: 'center', border: "none", borderRadius: "10px", bgcolor: "white" }}
             />
         </div>
     );
