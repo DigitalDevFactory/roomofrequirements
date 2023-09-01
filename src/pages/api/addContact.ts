@@ -84,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 image_url,
                 image: {
                     name: files.image[0].originalFilename || undefined,
-                    mimetype: files.image[0].mimetype || undefined ,
+                    // mimetype: files.image[0].mimetype || undefined ,
                     base64Content: imageBase64,
                     enablePublicUrl: true,
                     mediaType: 'image'

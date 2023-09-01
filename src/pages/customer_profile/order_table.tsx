@@ -23,6 +23,7 @@ interface OrderTableProps {
 }
 
 const OrderTable: React.FC<OrderTableProps> = ({ orders, onEdit, onDelete, onView }) => {
+    
     const columns = [
         // { field: 'type', headerName: 'Type', width: 150 },
         { field: 'order_name', headerName: 'Name', width: 200, flex: 1, headerAlign: 'left' as GridAlignment, align: 'left' as GridAlignment, type: 'string' },
@@ -36,7 +37,7 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onEdit, onDelete, onVie
             headerAlign: 'center' as GridAlignment,
             align: 'center' as GridAlignment,
             renderCell: (params: any) => {
-                const order: Order = params.row;
+                const order: Order = params?.row;
 
                 const onEdit = (order: Order) => {
                     console.log('onEdit', order);
@@ -71,8 +72,8 @@ const OrderTable: React.FC<OrderTableProps> = ({ orders, onEdit, onDelete, onVie
     return (
         <div style={{ height: 300, minHeight: 300, maxHeight: 300, paddingLeft: '9px', paddingRight: '9px' }}>  {/* Adjust the height accordingly */}
             <DataGrid
-                rows={orders}
-                columns={columns}
+                rows={orders ? orders : []}
+                columns={columns ? columns : []}
                 // pageSize={4}
                 // rowsPerPageOptions={[4]}
                 pagination={true}

@@ -5,7 +5,7 @@ interface ThemeProviderProps {
     children: React.ReactNode;
 }
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const theme = {
         palette: {
             primary: {

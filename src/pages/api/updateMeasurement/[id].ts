@@ -27,7 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             obj[key] = req.body[key];
         }
         return obj;
-    }, {});
+    }, {} as Record<string, any>); // <-- type assertion here
+    
 
     try {
         // Update the measurement in the database with the selected fields

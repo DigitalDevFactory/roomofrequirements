@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { FormControl, InputLabel, Select, MenuItem, TextField, Collapse, Button } from '@mui/material';
 import { Order } from './order_table';
 import { on } from 'events';
-import { OrderTypes } from '../types';
+import { OrderTypes } from '../../types/types';
 
 interface OrderFormProps {
     // onOrderSaved: (order: Order) => void;

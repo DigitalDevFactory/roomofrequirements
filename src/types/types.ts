@@ -75,7 +75,7 @@ export interface CustomerProfileProps {
     shirtsMeasurements: shirtsMeasurements[];
 }
 
-export type Contact = {
+export interface Contact {
     id: string;
     first_name: string;
     last_name: string;
@@ -86,7 +86,7 @@ export type Contact = {
 };
 
 
-export type CustomerData = {
+export interface CustomerData {
     id: string;
     first_name: string;
     last_name: string;
@@ -101,12 +101,12 @@ interface CustomFile extends File {
 }
 
 
-export type Xata = {
+export interface Xata {
     createdAt: string;
     // Add any other fields of 'xata' here
 };
 
-export type RowStateType = {
+export interface RowStateType {
     [key: string]: {
         isEditable: boolean;
         isUpdated: boolean;

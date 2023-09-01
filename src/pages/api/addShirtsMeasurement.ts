@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 date_added: new Date().toISOString()
             });
             res.status(200).json(newMeasurement);
-        } catch (error) {
+        } catch (error : any) {
             //   res.status(500).json({ error: 'Failed to add measurement.' });
             res.status(500).json({ error: error.message || 'Failed to add data' });
 

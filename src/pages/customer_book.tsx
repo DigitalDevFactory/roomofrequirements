@@ -35,7 +35,7 @@ import CameraEnhanceRoundedIcon from '@mui/icons-material/CameraEnhanceRounded';
 
 import Head from "next/head";
 import { GridRow } from '@mui/x-data-grid';
-import { CustomerData } from './types';
+import { CustomerData } from '../types/types';
 
 
 

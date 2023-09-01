@@ -21,7 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 .getAll();
 
             res.status(200).json(records);
-        } catch (error) {
+        } catch (error : any) {
             console.error('Xata error:', error);  // Log the actual error message to the server console
             res.status(500).json({ error: 'Failed to fetch contacts.' });
         }

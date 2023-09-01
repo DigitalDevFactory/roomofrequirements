@@ -7,7 +7,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             const orderInput = req.body;
             const order = await createOrder(orderInput);
             res.status(200).json(order);
-        } catch (error) {
+        } catch (error : any) {
             console.error("Error in createOrder API route:", error); // Added for better debugging
             res.status(500).json({ error: 'Unable to create order.' });
         }

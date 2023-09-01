@@ -9,7 +9,7 @@ import { fetchCustomerData } from '@/pages/api/getCustomerProfile';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/navbar';
 import capitalizeFirstLetter from '@/utils/capitalizeFirstLetter';
-import { MeasurementField, MeasurementFields, CustomerData } from './../../types';  // Adjust the path as needed
+import { MeasurementField, MeasurementFields, CustomerData } from '../../../types/types';  // Adjust the path as needed
 import NavigationBar from '@/components/navbar';
 
 

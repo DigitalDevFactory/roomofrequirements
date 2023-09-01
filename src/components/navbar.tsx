@@ -22,7 +22,7 @@ import zIndex from '@mui/material/styles/zIndex';
 import FitwellLogo from './FitwellLogo';
 import SearchIcon from '@mui/icons-material/Search';
 // import { Contact } from '@/pages/customer_book';
-import { CustomerData } from '@/pages/types';
+import { CustomerData } from '@/types/types';
 
 
 export interface NavigationBarProps {

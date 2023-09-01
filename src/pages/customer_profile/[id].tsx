@@ -36,7 +36,7 @@ import {
     Row,
     EditedRow,
     RowState
-} from '../types';
+} from '../../types/types';
 
 
 
