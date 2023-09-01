@@ -725,7 +725,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
 
 export async function getServerSideProps(context: { params: { id: any; }; }) {
     const customerId = context.params.id;
-    const response = await fetch(`http://localhost:3000/api/getCustomerData?id=${customerId}`);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    const response = await fetch(`${apiUrl}/api/getCustomerData?id=${customerId}`);
     if (!response.ok) {
         console.error('Failed to fetch customer data:', await response.text());
     }
