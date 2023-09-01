@@ -9,13 +9,17 @@ import { fetchCustomerData } from '@/pages/api/getCustomerProfile';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/navbar';
 import capitalizeFirstLetter from '@/utils/capitalizeFirstLetter';
+import { MeasurementField, MeasurementFields, CustomerData } from './../../types';  // Adjust the path as needed
+import NavigationBar from '@/components/navbar';
 
 
 
 const AddMeasurementForm = () => {
+  type ItemType = keyof MeasurementFields;
+
   const router = useRouter();
   const { customerId, item } = router.query;
-  const [customer, setCustomer] = useState(null);
+  const [customer, setCustomer] = useState<CustomerData | null>(null);
   const measurementFields = {
     pants: {
       Waist: '',
@@ -43,7 +47,13 @@ const AddMeasurementForm = () => {
     // ... other item types if needed
   };
 
-  const [measurement, setMeasurement] = useState(measurementFields[item] || {});
+  let initialMeasurement: MeasurementField = {};
+
+  if (typeof item === 'string' && item in measurementFields) {
+    initialMeasurement = measurementFields[item as ItemType];
+  }
+
+  const [measurement, setMeasurement] = useState<MeasurementField>(initialMeasurement);
 
 
   useEffect(() => {
@@ -63,30 +73,35 @@ const AddMeasurementForm = () => {
 
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    try {
-      const response = await fetch(`/api/add${capitalizeFirstLetter(item)}Measurement`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerId: customerId as string,
-          measurement: measurement,
-        }),
-      });
+    if (typeof item === 'string') {
 
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
-  };
+      try {
+        const response = await fetch(`/api/add${capitalizeFirstLetter(item)}Measurement`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerId: customerId as string,
+            measurement: measurement,
+          }),
+        });
+
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.error("Error submitting data:", error);
+      }
+    };
+  }
 
   return (
     <>
-      <Navbar />
+      <NavigationBar open={false} setOpen={function (open: boolean): void {
+        throw new Error('Function not implemented.');
+      }} />
       <Card sx={{
         p: 3,
         borderRadius: 2,

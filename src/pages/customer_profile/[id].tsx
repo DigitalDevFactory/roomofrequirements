@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import {
-    Card, CardContent, Tabs, Tab, Table,
+    CardContent, Tabs, Tab, Table,
     TableHead, TableRow, TableCell, TableBody, Container, Avatar, Typography, Select, MenuItem,
     FormControl, InputLabel, Input, FormHelperText, Button, Modal, Menu, IconButton, Collapse, TextField, Box
 } from '@mui/material';
@@ -9,8 +9,8 @@ import { color } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/router';
 import { SelectChangeEvent } from '@mui/material';
-import Navbar from '@/components/navbar';
-import { DataGrid } from '@mui/x-data-grid';
+import NavigationBar from '@/components/navbar';
+import { DataGrid, GridCellParams, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
@@ -22,83 +22,38 @@ import TocIcon from '@mui/icons-material/Toc';
 import { Theme, makeStyles } from '@mui/material/styles';
 import clsx from "clsx";
 // import color from "color";
+import { Card, CardBody, CardFooter } from "@nextui-org/react";
+import {
+    MeasurementField,
+    MeasurementFields,
+    MeasurementsTableProps,
+    CustomerData,
+    pantsMeasurements,
+    shirtsMeasurements,
+    CustomerProfileProps,
+    Xata,
+    RowStateType,
+    Row,
+    EditedRow,
+    RowState
+} from '../types';
 
 
 
-
-export type CustomerData = {
-    id: string;
-    first_name: string;
-    last_name: string;
-    phone_number: string;
-    email: string;
-    image_url: string;
-    image: File
-};
 //.select(["id", "customer_id", "Waist", "Knee", "FR", "Hip", "Jambe", "Genou", "Length", "date_added"])
 
-type Xata = {
-    createdAt: string;
-    // Add any other fields of 'xata' here
-};
-
-type shirtsMeasurements = {
-    id: string;
-    date_added: string;
-    Collar: number;
-    XB: number;
-    Chest: number;
-    Waist: number;
-    Length: number;
-    Sleeve_length: number;
-    Around_arm: number;
-    xata: Xata;
-    // ... other shirt measurement fields
-};
-
-type pantsMeasurements = {
-    id: string;
-    date_added: string;
-    Waist: number;
-    Hip: number;
-    Knee: number;
-    FR: number;
-    Jambe: number;
-    Genou: number;
-    Length: number;
-    Bottom: number;
-    Mollet: number;
-    xata: Xata;
-    // ... other pants measurement fields
-};
-
-type RowStateType = {
-    [key: string]: {
-        isEditable: boolean;
-        isUpdated: boolean;
-    };
-};
-
-interface CustomerProfileProps {
-    customer: CustomerData;
-    pantsMeasurements: pantsMeasurements[];
-    shirtsMeasurements: shirtsMeasurements[];
-}
 
 
-
-interface MeasurementsTableProps {
-    customer: CustomerData;
-    measurements: any[];
-    headers: string[];
-    formatRow: (row: any) => JSX.Element[];
-}
 
 
 
 const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measurements, headers, formatRow }) => {
-    const initialRowValues = useRef({});
-    const [rowState, setRowState] = useState<{ [key: string]: { isEditable: boolean; }; }>({});
+    const initialRowValues = useRef<{ [id: string]: Row }>({});
+    const [rowState, setRowState] = useState<{
+        [key: string]: {
+            isUpdated: boolean; isEditable: boolean;
+        };
+    }>({});
     const [editedRows, setEditedRows] = useState<any>({});
     const [editedCellsState, setEditedCellsState] = useState<{ [key: string]: { [key: string]: any } }>({});
 
@@ -108,26 +63,22 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
     const customerid = customer.id;
 
     // Create columns from headers
-    const columns = headers.map((header) => ({
+    const columns: GridColDef[] = headers.map((header) => ({
         field: header,
         type: 'number',
         headerName: header,
-        // width: 115,
-        flex: 1, // Adjust width based on your design requirements
+        flex: 1,
         headerAlign: 'center',
         align: 'center',
-        editable: (params) => rowState[params.id]?.isEditable || false
-
+        editable: true,
     }));
 
     columns.push({
         field: 'actions',
         headerName: 'Actions',
-        renderCell: (params) => actionButtons(params.row),
-        flex: 1, // Adjust width based on your design requirements
-        editable: false
+        flex: 1,
+        renderCell: (params: GridRenderCellParams) => actionButtons(params.row as Row),
     });
-
 
 
 
@@ -144,10 +95,10 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
         console.log("Initial row values:", initialRowValues.current);
     };
 
-    const handleCellEdit = (params: any) => {
+    const handleCellEdit = (params: GridCellParams) => {
         const id = params.id;
         const field = params.field;
-        const newValue = params.props.value;
+        const newValue = params.value;
 
         setEditedCellsState(prevState => ({
             ...prevState,
@@ -158,23 +109,29 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
         }));
     };
 
-    const handleSaveClick = async (row: any) => {
-        const editedRow = editedRows[row.id] || {};
+    const handleSaveClick = async (row: Row) => {
+        const editedRow: EditedRow = editedRows[row.id] || {};
 
-        // Start with the edited values and transform fields that should be numbers
-        const updatedRow = Object.keys(editedRow).reduce((acc, field) => {
-            const newValue = editedRow[field];
-            const oldValue = initialRowValues.current[field];
+        let updatedRow = { ...row }; // Copy the original row as a starting point
 
-            // If the original value was a number, attempt to convert the edited value to a number
-            if (typeof oldValue === 'number' && !isNaN(Number(newValue))) {
-                acc[field] = Number(newValue);
-            } // else case is not needed, since the starting value in acc is already the string value from editedRow
+        if (editedRow && editedRow.row) {
+            updatedRow = (Object.keys(editedRow.row) as Array<keyof typeof editedRow.row>).reduce((acc, field) => {
+                const newValue = editedRow.row[field];
+                const oldValue = initialRowValues.current[row.id].row[field];
 
-            return acc;
-        }, { ...editedRow }); // start with a shallow copy of the editedRow as our accumulator
+                // If the original value was a number, attempt to convert the edited value to a number
+                if (typeof oldValue === 'number' && !isNaN(Number(newValue))) {
+                    (acc.row[field] as any) = Number(newValue);
+                }
+
+                return acc;
+            }, updatedRow);
+        } else {
+            console.error('editedRow or editedRow.row is null or undefined:', editedRow);
+        }
 
         console.log("Original row:", row);
+        console.log("Updated row:", updatedRow);
 
         try {
             const response = await fetch(`/api/updateMeasurement/${row.id}`, {
@@ -182,7 +139,7 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(row)
+                body: JSON.stringify(updatedRow) // Send the updated row
             });
 
             const data = await response.json();
@@ -218,43 +175,41 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
 
 
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to update measurement:", error.message);
         }
     };
 
 
 
-    const actionButtons = (row: any) => {
-
+    const actionButtons = (row: Row) => {
+        // Removed local state. We should use rowState from the parent component.
         const isEditable = rowState[row.id]?.isEditable || false;
         const isUpdated = rowState[row.id]?.isUpdated || false;
 
         return (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                {
-
-                    isUpdated ? (
-                        <span style={{ color: 'green' }}>✔</span>
-                    ) :
-                        isEditable ? (
-                            <IconButton onClick={() => handleSaveClick(row)} size="small">
-                                <SaveIcon fontSize="small" />
-                            </IconButton>
-                        ) : (
-                            <IconButton onClick={() => handleEditClick(row)} size="small">
-                                <EditIcon fontSize="small" />
-                            </IconButton>
-                        )
+                {isUpdated ? (
+                    <span style={{ color: 'green' }}>✔</span>
+                ) : (
+                    isEditable ? (
+                        <IconButton onClick={() => handleSaveClick(row)} size="small">
+                            <SaveIcon fontSize="small" />
+                        </IconButton>
+                    ) : (
+                        <IconButton onClick={() => handleEditClick(row)} size="small">
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                    )
+                )
                 }
-
-                <IconButton onClick={() => handleDeleteClick(row.id)} size="small"> {/* I'm assuming handleDeleteClick based on your use of DeleteIcon */}
+                <IconButton onClick={() => (console.log("Trying to delete", row.id))} size="small">
                     <DeleteIcon fontSize="small" />
                 </IconButton>
-                {/* Add more buttons or logic as needed */}
             </div>
         );
     };
+
 
     // Map measurements to rows for DataGrid
     const rows = measurements.map((row) => {
@@ -276,9 +231,7 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
             <DataGrid
                 rows={rows}
                 columns={columns}
-                // autoPageSize
-                checkboxSelection={false}
-                onEditCellChangeCommitted={handleCellEdit}
+                onCellEditStop={handleCellEdit}
             />
         </div>
     );
@@ -291,7 +244,10 @@ const MeasurementsTable: React.FC<MeasurementsTableProps> = ({ customer, measure
 
 
 const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasurements, shirtsMeasurements }) => {
-    const [tabValue, setTabValue] = useState<string>('pants');
+    type TableConfigurationKey = "pants" | "shirts";  // Add more keys as needed
+
+    const [tabValue, setTabValue] = useState<TableConfigurationKey>('pants');
+
     // const [selectedMeasurement, setSelectedMeasurement] = useState('');
     const router = useRouter();
     const [measurementType, setMeasurementType] = useState<string>('');
@@ -340,26 +296,31 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
 
 
 
-    const handleMeasurementChange = (value: SelectChangeEvent) => {
-        const selectedValue = value as number;
-        console.log('Selected value:', selectedValue);
-        setMeasurementType(selectedValue); // <-- Ensure this is here
+    const handleMeasurementChange = (event: SelectChangeEvent) => {
+        const selectedValue = event.target.value;
 
-        switch (selectedValue) {
-            case '1':
-                router.push(`/addMeasurementForm/${customer.id}/pants`);
-                break;
-            case '2':
-                router.push(`/addMeasurementForm/${customer.id}/shirts`);
-                break;
-            case '3':
-                router.push(`/addMeasurementForm/${customer.id}/suits`);
-                break;
-            default:
-                break;
+        if (typeof selectedValue === "string") {
+            console.log("Selected value:", selectedValue);
+            setMeasurementType(selectedValue); // Assuming setMeasurementType expects a string
+
+            switch (parseInt(selectedValue, 10)) {
+                case 1:
+                    router.push(`/addMeasurementForm/${customer.id}/pants`);
+                    break;
+                case 2:
+                    router.push(`/addMeasurementForm/${customer.id}/shirts`);
+                    break;
+                case 3:
+                    router.push(`/addMeasurementForm/${customer.id}/suits`);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            console.error("Unexpected type for selectedValue:", typeof selectedValue);
         }
-
     };
+
 
 
     useEffect(() => {
@@ -450,14 +411,17 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
         }
     };
 
-    console.log("Is handleNewOrder a function?", typeof handleNewOrder === "function");
+    // console.log("Is handleNewOrder a function?", typeof handleNewOrder === "function");
 
 
 
 
 
     return (
-        <>            <Navbar />
+        <>
+            <NavigationBar open={false} setOpen={function (open: boolean): void {
+                throw new Error('Function not implemented.');
+            } }            />
 
             <Container sx={{
                 minWidth: '100%',
@@ -477,37 +441,28 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                 backgroundRepeat: 'no-repeat',
                 backgroundPositionX: '40%',
                 backgroundPositionY: '30%'
-
-                // minWidth: '100%',
-
             }}>
                 {/* Customer Info Card */}
                 {customer && (
                     <Card
-                        sx={{
-                            minHeight: 430,
-                            maxHeight: 430,
-                            gridColumn: { xs: '1', md: '1' },
-                            justifyContent: 'center',
-                            textAlign: 'center',
-                            borderRadius: 5,
-                            mx: 'auto',
-                            width: { xs: '100%' },
-                            background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
-                            boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
+                        isBlurred
+                        className="border-none bg-background/60 dark:bg-default-100/50 mx-auto"
+                        shadow="sm"
+                        style={{
+                            boxShadow: '0 0 1px 0 #17226d',
+                            borderRadius: '8px',
+                            width: '90%',
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-around',
+                            alignItems: 'center',
+                            padding: '20px',
+                            background: "linear-gradient(127deg, rgba(255,255,255,1) 1%, rgba(255,255,255,0.5) 50%)",
                         }}
                     >
-                        <CardContent
-                            sx={{
-                                background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
-                                backdropFilter: 'blur(6px)',
-                                minWidth: '100%',
-                                display: 'flex',
-                                flexDirection: "column",
-                                p: 3
-                                // border: "1px solid rgba(255,255,255,0.1)", // Light border for the reflective effect
-                                // borderTop: "1px solid rgba(255,255,255,0.6)", // Extra light border-top for enhanced reflection
-                            }}>
+                        <CardBody
+                        >
                             <Avatar src={!customer.image ? customer.image_url : customer.image.url} sx={{ height: { xs: '152px', md: '152px' }, width: '152px', marginBottom: '2', mx: "auto" }}>
                                 {(!customer.image_url && customer.first_name) ? customer.first_name[0] + customer.last_name[0] : ''}
                             </Avatar>
@@ -517,7 +472,8 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                     textAlign: 'center',
                                     mt: 2,
                                     // px: 3,
-                                    color: '#000000'
+                                    color: '#000000',
+                                    textTransform: 'capitalize'
                                 }}
                             >{customer.first_name} <br></br> {customer.last_name}
                             </Typography>
@@ -540,67 +496,80 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                 }}
                             >{customer.email}
                             </Typography>
+                        </CardBody>
+                        <CardFooter
+                            className='w-full min-w-full max-w-full text-center items-center justify-center'
+                        >
                             <motion.div
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                             >
                                 <Button
+                                    className='w-full'
                                     sx={{
+                                        mx: 'auto',
                                         color: 'primary',
                                         borderRadius: 12,
                                         boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
                                         my: 2,
                                         p: 3
                                     }}
-                                    onClick={(event) => setAnchorEl(event.currentTarget)}
+                                    onClick={(event) => setAnchorEl(event.currentTarget as any)}
                                 >
                                     Add measurements
                                 </Button>
                             </motion.div>
+                        </CardFooter>
 
-                            <Menu
-                                anchorEl={anchorEl}
-                                open={Boolean(anchorEl)}
-                                onClose={() => setAnchorEl(null)}
-                            >
-                                <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange(""); }}>
-                                    <em>None</em>
-                                </MenuItem>
-                                <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange("1"); }}>
-                                    Pants
-                                </MenuItem>
-                                <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange("2"); }}>
-                                    Shirts
-                                </MenuItem>
-                                <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange("3"); }}>
-                                    Suits
-                                </MenuItem>
-                            </Menu>
-                        </CardContent>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={() => setAnchorEl(null)}
+                        >
+                            <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange({ target: { value: "0" } } as any); }}>
+                                <em>None</em>
+                            </MenuItem>
+                            <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange({ target: { value: "1" } } as any); }}>
+                                Pants
+                            </MenuItem>
+                            <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange({ target: { value: "2" } } as any); }}>
+                                Shirts
+                            </MenuItem>
+                            <MenuItem onClick={() => { setAnchorEl(null); handleMeasurementChange({ target: { value: "3" } } as any); }}>
+                                Suits
+                            </MenuItem>
+                        </Menu>
+
                     </Card>
 
                 )
                 }
 
 
-                <Card sx={{
-                    mx: "auto",
-                    minHeight: 430,
-                    maxHeight: 430,
-                    gridColumn: { xs: '1', md: '2' },
-                    textAlign: 'center',
-                    borderRadius: 5,
-                    width: { xs: '100%' },
-                    background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
-                    boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                }}>
+                <Card
+                    isBlurred
+                    className="border-none bg-background/60 dark:bg-default-100/50 mx-auto w-full"
+                    shadow="sm"
+                    style={{
+                        boxShadow: '0 0 1px 0 #17226d',
+                        borderRadius: '8px',
+                        //  width: '90%',
+                        //  height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        padding: '20px',
+                        background: "linear-gradient(127deg, rgba(255,255,255,1) 1%, rgba(255,255,255,0.5) 50%)",
+                    }}
+                >
 
-                    <CardContent className='' sx={{
-                        minHeight: '430px',
-                        maxHeight: '430px',
-                        background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
-                        backdropFilter: 'blur(6px)',
-                    }}>
+                    <CardBody className=''
+                        style={{
+                            minHeight: '430px',
+                            maxHeight: '430px',
+                        }}
+                    >
                         {/* Typography Centered */}
                         <div style={{ display: 'flex', flexDirection: 'row', marginBottom: 4, padding: 4 }}>
                             <Typography
@@ -611,7 +580,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                     flexGrow: 1,
                                     width: '100%',
                                     textAlign: 'center',
-                                    my: 2,
+                                    marginBottom: 2,
                                     color: 'black'
                                 }}
 
@@ -626,6 +595,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                     minWidth: '100px',
                                     minHeight: '50px',
                                     maxHeight: '50px',
+                                    marginBottom: 2,
                                     borderRadius: 12,
                                     flexGrow: 0.5,
                                     boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
@@ -656,10 +626,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                         </div>
                         {/* Displaying the form or the table */}
                         {showOrderForm
-                            ? <OrderForm sx={{ width: '100%' }} toggleView={toggleShowOrderForm} refreshOrders={fetchOrders} ></OrderForm>
-                            : <OrderTable orders={orders} sx={{ maxHeight: '425px', minHeight: '425px', width: '100' }}></OrderTable>
+                            ? <OrderForm
+                                toggleView={toggleShowOrderForm}
+                                refreshOrders={fetchOrders} />
+                            : <OrderTable orders={orders}  ></OrderTable>
                         }
-                    </CardContent>
+                    </CardBody>
 
 
                 </Card>
@@ -686,27 +658,27 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
 
                     <>
                         <Card
-                            sx={{
-                                background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
-                                boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
-                                borderRadius: 5,
-                            }}>
 
-                            <CardContent sx={{
-                                background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
-                                minWidth: '100%',
-                                backdropFilter: "blur(6px)",
-                                py: 0,
-                                my: 0,
+                            isBlurred
+                            className="border-none bg-background/60 dark:bg-default-100/50 mx-auto w-full"
+                            shadow="sm"
+                            style={{
+                                boxShadow: '0 0 1px 0 #17226d',
+                                borderRadius: '8px',
+                                //  width: '90%',
+                                //  height: '100%',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                alignItems: 'left',
-                                justifyContent: 'center',
-                                textAlign: 'center',
-                                overflow: 'auto',
-                                maxHeight: '80vh',
-                                maxWidth: '100%'
-                            }}>
+                                justifyContent: 'space-around',
+                                alignItems: 'center',
+                                padding: '20px',
+                                background: "linear-gradient(127deg, rgba(255,255,255,1) 1%, rgba(255,255,255,0.5) 50%)",
+                            }}
+                        >
+
+                            <CardBody
+
+                            >
                                 <Tabs
                                     sx={{
                                         mb: 1,
@@ -722,13 +694,10 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                 </Tabs>
                                 {tableConfigurations[tabValue].data && tableConfigurations[tabValue].data.length > 0 ? (
                                     <MeasurementsTable
-                                        // key={tableVersion}
-                                        // refreshTable={refreshTable}
                                         customer={customer}
                                         measurements={tableConfigurations[tabValue].data}
                                         headers={tableConfigurations[tabValue].headers}
                                         formatRow={tableConfigurations[tabValue].formatter}
-                                    // onDataUpdated={handleDataUpdated} // pass the new handler here
                                     />
                                 ) :
                                     <Typography sx={{
@@ -740,7 +709,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
                                         No measurements found.
                                     </Typography>
                                 }
-                            </CardContent>
+                            </CardBody>
                         </Card>
                     </>
                 </Box>
@@ -754,7 +723,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, pantsMeasur
 };
 
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: { params: { id: any; }; }) {
     const customerId = context.params.id;
     const response = await fetch(`http://localhost:3000/api/getCustomerData?id=${customerId}`);
     if (!response.ok) {
@@ -775,3 +744,49 @@ export async function getServerSideProps(context) {
 }
 
 export default CustomerProfile;
+
+
+{/*
+
+                                        // key={tableVersion}
+                                        // refreshTable={refreshTable}
+                         // sx={{
+                            //     background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
+                            //     minWidth: '100%',
+                            //     backdropFilter: "blur(6px)",
+                            //     py: 0,
+                            //     my: 0,
+                            //     display: 'flex',
+                            //     flexDirection: 'column',
+                            //     alignItems: 'left',
+                            //     justifyContent: 'center',
+                            //     textAlign: 'center',
+                            //     overflow: 'auto',
+                            //     maxHeight: '80vh',
+                            //     maxWidth: '100%'
+                            // }}
+     // sx={{
+                //     mx: "auto",
+                //     minHeight: 430,
+                //     maxHeight: 430,
+                //     gridColumn: { xs: '1', md: '2' },
+                //     textAlign: 'center',
+                //     borderRadius: 5,
+                //     width: { xs: '100%' },
+                //     background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
+                //     boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
+                // }}
+                  // sx={{
+                            //     background: "linear-gradient(127deg, rgba(255,255,255,0.5) 1%, rgba(255,255,255,0.1) 50%)",
+                            //     boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.4)',
+                            //     borderRadius: 5,
+                            // }}
+                                                                // onDataUpdated={handleDataUpdated} // pass the new handler here
+           //  sx={{
+                    //     minHeight: '430px',
+                    //     maxHeight: '430px',
+                    //     background: "linear-gradient(127deg, rgba(255,255,255,0.3) 10%, rgba(255,255,255,0.1) 100%)",
+                    //     backdropFilter: 'blur(6px)',
+                    // }}
+
+*/}

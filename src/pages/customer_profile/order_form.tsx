@@ -3,9 +3,10 @@ import { useRouter } from 'next/router';
 import { FormControl, InputLabel, Select, MenuItem, TextField, Collapse, Button } from '@mui/material';
 import { Order } from './order_table';
 import { on } from 'events';
+import { OrderTypes } from '../types';
 
 interface OrderFormProps {
-    onOrderSaved: (order: Order) => void;
+    // onOrderSaved: (order: Order) => void;
     toggleView: () => void;
     refreshOrders: () => void;
 }
@@ -13,7 +14,7 @@ interface OrderFormProps {
 const OrderForm: React.FC<OrderFormProps> = ({ toggleView, refreshOrders }) => {
     const [orderType, setOrderType] = useState('');
     const [orderName, setOrderName] = useState('');
-    const [availableOrderTypes, setAvailableOrderTypes] = useState([]);
+    const [availableOrderTypes, setAvailableOrderTypes] = useState<OrderTypes[] | null>(null);
 
     useEffect(() => {
         const fetchOrderTypes = async () => {
@@ -80,9 +81,9 @@ const OrderForm: React.FC<OrderFormProps> = ({ toggleView, refreshOrders }) => {
                     onChange={(event) => setOrderType(event.target.value)}
                     label="Type"
                 >
-                    {availableOrderTypes.map(type => (
+                    {availableOrderTypes?.map(type => (
                         <MenuItem key={type.id} value={type.id}>
-                            {type.type_name}  {/* or whatever the field is called */}
+                            {type.type_name}  
                         </MenuItem>
                     ))}
                 </Select>

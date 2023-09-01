@@ -16,7 +16,30 @@
   }
 }
 
+
+header{
+  max-width: 100%;
+  min-width: 100%;
+}
+
+nav {
+  /* display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  background: rgb(var(--background-start-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 10; */
+}
+
 body {
+  min-height: 100vh;
+  max-height: 100%;
   color: rgb(var(--foreground-rgb));
   overflow: 'auto';
   background: linear-gradient(
@@ -25,9 +48,17 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-    background-image:url("/assets/abg.png"); 
+    background-image:url("/assets/bg0.png"); 
     /* background-position-y: "52px"; */
     background-size: cover;
+}
+
+
+
+@media only screen and (min-width: 768px) { /* adjust 768px as per your 'md' breakpoint */
+  .bigscreen-class {
+      flex-direction: row !important;
+  }
 }
 
 .css-hip9hq-MuiPaper-root-MuiAppBar-root {

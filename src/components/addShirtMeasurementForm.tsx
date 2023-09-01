@@ -18,7 +18,7 @@ const AddShirtMeasurementForm = () => {
     AroundArm: ''
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await fetch('/api/addShirtMeasurement', {
@@ -39,6 +39,7 @@ const AddShirtMeasurementForm = () => {
     }
   };
 
+
   return (
     <Container>
       <form onSubmit={handleSubmit}>
@@ -47,7 +48,7 @@ const AddShirtMeasurementForm = () => {
             <label htmlFor={key}>{key}</label>
             <Input
               id={key}
-              value={measurement[key]}
+              value={(measurement as { [key: string]: any })[key]}
               onChange={(e) => setMeasurement({ ...measurement, [key]: e.target.value })}
             />
           </div>
