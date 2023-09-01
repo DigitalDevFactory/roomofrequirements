@@ -21,7 +21,8 @@ import Stack from '@mui/material/Stack';
 import zIndex from '@mui/material/styles/zIndex';
 import FitwellLogo from './FitwellLogo';
 import SearchIcon from '@mui/icons-material/Search';
-import { Contact } from '@/pages/customer_book';
+// import { Contact } from '@/pages/customer_book';
+import { CustomerData } from '@/pages/types';
 
 
 export interface NavigationBarProps {
@@ -30,7 +31,7 @@ export interface NavigationBarProps {
     isHovered?: boolean;
     searchTerm?: string;
     handleSearchChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    filteredContacts?: Contact[];
+    filteredContacts?: CustomerData[];
     handleMouseEnter?: () => void;
     handleMouseLeave?: () => void;
 }
